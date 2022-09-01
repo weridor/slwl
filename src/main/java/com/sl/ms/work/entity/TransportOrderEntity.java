@@ -44,22 +44,45 @@ public class TransportOrderEntity implements Serializable {
      */
     private TransportOrderSchedulingStatus schedulingStatus;
 
-    //起始网点id
+    /**
+     * 起始网点id
+     */
     private Long startAgencyId;
-    //终点网点id
+
+    /**
+     * 终点网点id
+     */
     private Long endAgencyId;
-    //当前所在机构id
+
+    /**
+     * 当前所在机构id
+     */
     private Long currentAgencyId;
-    //下一个机构id
+
+    /**
+     * 下一个机构id
+     */
     private Long nextAgencyId;
-    //完整的运输路线
+
+    /**
+     * 完整的运输路线
+     */
     private String transportLine;
-    //货品总体积，单位：立方米
+
+    /**
+     * 货品总体积，单位：立方米
+     */
     private BigDecimal totalVolume;
-    //货品总重量，单位：kg
+
+    /**
+     * 货品总重量，单位：kg
+     */
     private BigDecimal totalWeight;
-    //是否为拒收运单，默认非拒收
-    private Boolean isRejection = false;
+
+    /**
+     * 是否为拒收运单
+     */
+    private Boolean isRejection;
 
     @TableField(fill = FieldFill.INSERT) //MP自动填充
     private LocalDateTime created;
