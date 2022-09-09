@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.sl.ms.work.domain.dto.CourierTaskCountDTO;
 import com.sl.ms.work.domain.dto.PickupDispatchTaskDTO;
+import com.sl.ms.work.domain.dto.request.PickupDispatchTaskPageQueryDTO;
 import com.sl.ms.work.domain.enums.pickupDispatchtask.PickupDispatchTaskType;
 import com.sl.ms.work.entity.PickupDispatchTaskEntity;
+import com.sl.transport.common.util.PageResponse;
 
 import java.util.List;
 
@@ -41,14 +43,12 @@ public interface PickupDispatchTaskService extends IService<PickupDispatchTaskEn
     PickupDispatchTaskEntity saveTaskPickupDispatch(PickupDispatchTaskEntity taskPickupDispatch);
 
     /**
-     * 获取取派件任务分页数据
+     * 分页查询取派件任务
      *
-     * @param page     页码
-     * @param pageSize 页尺寸
-     * @param dispatch 查询条件
-     * @return 取派件任务分页数据
+     * @param dto 查询条件
+     * @return 分页结果
      */
-    Page<PickupDispatchTaskEntity> findByPage(Integer page, Integer pageSize, PickupDispatchTaskEntity dispatch);
+    PageResponse<PickupDispatchTaskDTO> findByPage(PickupDispatchTaskPageQueryDTO dto);
 
     /**
      * 获取取派件任务列表

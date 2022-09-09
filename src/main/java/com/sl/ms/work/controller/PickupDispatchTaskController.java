@@ -1,10 +1,9 @@
 package com.sl.ms.work.controller;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sl.ms.work.domain.dto.CourierTaskCountDTO;
 import com.sl.ms.work.domain.dto.PickupDispatchTaskDTO;
-import com.sl.ms.work.domain.dto.request.PickupDispatchTaskRequestDTO;
+import com.sl.ms.work.domain.dto.request.PickupDispatchTaskPageQueryDTO;
 import com.sl.ms.work.domain.enums.WorkExceptionEnum;
 import com.sl.ms.work.domain.enums.pickupDispatchtask.PickupDispatchTaskType;
 import com.sl.ms.work.entity.PickupDispatchTaskEntity;
@@ -55,10 +54,8 @@ public class PickupDispatchTaskController {
 
     @PostMapping("page")
     @ApiOperation(value = "分页查询", notes = "获取取派件任务分页数据")
-    public PageResponse<PickupDispatchTaskDTO> findByPage(@RequestBody PickupDispatchTaskRequestDTO dto) {
-        PickupDispatchTaskEntity queryTask = BeanUtil.toBean(dto, PickupDispatchTaskEntity.class);
-        Page<PickupDispatchTaskEntity> pageResult = this.pickupDispatchTaskService.findByPage(dto.getPage(), dto.getPageSize(), queryTask);
-        return new PageResponse<>(pageResult, PickupDispatchTaskDTO.class);
+    public PageResponse<PickupDispatchTaskDTO> findByPage(@RequestBody PickupDispatchTaskPageQueryDTO dto) {
+        return this.pickupDispatchTaskService.findByPage(dto);
     }
 
     @GetMapping("{id}")
@@ -129,5 +126,4 @@ public class PickupDispatchTaskController {
     public List<PickupDispatchTaskDTO> findTodayTasks(@PathVariable("courierId") Long courierId) {
         return pickupDispatchTaskService.findTodayTaskByCourierId(courierId);
     }
-
 }
