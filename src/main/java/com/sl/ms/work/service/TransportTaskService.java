@@ -127,4 +127,13 @@ public interface TransportTaskService extends IService<TransportTaskEntity> {
      * @return 每日里程数据
      */
     List<TransportTaskMonthlyDistanceDTO> monthlyDistanceStatistics(List<String> transportTaskIds, String month);
+
+    /**
+     * 根据起始机构查询运输任务id列表
+     *
+     * @param startAgencyId 起始机构id
+     * @param endAgencyId   结束机构id
+     * @return 运输任务id列表
+     */
+    List<Long> findByAgencyId(Long startAgencyId, Long endAgencyId);
 }
