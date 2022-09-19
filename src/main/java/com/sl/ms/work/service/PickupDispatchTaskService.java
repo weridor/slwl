@@ -51,15 +51,6 @@ public interface PickupDispatchTaskService extends IService<PickupDispatchTaskEn
     PageResponse<PickupDispatchTaskDTO> findByPage(PickupDispatchTaskPageQueryDTO dto);
 
     /**
-     * 获取取派件任务列表
-     *
-     * @param ids      取派件任务id列表
-     * @param dispatch 查询条件
-     * @return 取派件任务列表
-     */
-    List<PickupDispatchTaskEntity> findAll(List<Long> ids, List<Long> orderIds, PickupDispatchTaskEntity dispatch);
-
-    /**
      * 按照当日快递员id列表查询每个快递员的取派件任务数
      *
      * @param courierIds             快递员id列表
