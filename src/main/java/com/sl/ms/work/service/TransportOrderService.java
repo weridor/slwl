@@ -3,8 +3,8 @@ package com.sl.ms.work.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.sl.ms.work.domain.dto.TransportOrderDTO;
+import com.sl.ms.work.domain.dto.request.TransportOrderQueryDTO;
 import com.sl.ms.work.domain.dto.response.TransportOrderStatusCountDTO;
-import com.sl.ms.work.domain.enums.transportorder.TransportOrderSchedulingStatus;
 import com.sl.ms.work.domain.enums.transportorder.TransportOrderStatus;
 import com.sl.ms.work.entity.TransportOrderEntity;
 import com.sl.transport.common.util.PageResponse;
@@ -27,19 +27,9 @@ public interface TransportOrderService extends IService<TransportOrderEntity> {
     /**
      * 获取运单分页数据
      *
-     * @param page             页码
-     * @param pageSize         页尺寸
-     * @param id               运单号
-     * @param orderId          订单Id
-     * @param status           运单状态
-     * @param schedulingStatus 运单调度状态
      * @return 运单分页数据
      */
-    Page<TransportOrderEntity> findByPage(Integer page, Integer pageSize,
-                                          String id,
-                                          Long orderId,
-                                          TransportOrderStatus status,
-                                          TransportOrderSchedulingStatus schedulingStatus);
+    Page<TransportOrderEntity> findByPage(TransportOrderQueryDTO transportOrderQueryDTO);
 
     /**
      * 通过订单id获取运单信息
@@ -101,7 +91,7 @@ public interface TransportOrderService extends IService<TransportOrderEntity> {
      * 发送消息到调度中心，用于生成取派件任务
      *
      * @param transportOrder 运单对象
-     * @param orderMsg 消息对象
+     * @param orderMsg       消息对象
      */
     void sendPickupDispatchTaskMsgToDispatch(TransportOrderEntity transportOrder, OrderMsg orderMsg);
 

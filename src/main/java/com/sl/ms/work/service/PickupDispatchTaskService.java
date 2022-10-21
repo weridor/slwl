@@ -1,10 +1,11 @@
 package com.sl.ms.work.service;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.sl.ms.work.domain.dto.CourierTaskCountDTO;
 import com.sl.ms.work.domain.dto.PickupDispatchTaskDTO;
 import com.sl.ms.work.domain.dto.request.PickupDispatchTaskPageQueryDTO;
+import com.sl.ms.work.domain.enums.pickupDispatchtask.PickupDispatchTaskIsDeleted;
+import com.sl.ms.work.domain.enums.pickupDispatchtask.PickupDispatchTaskStatus;
 import com.sl.ms.work.domain.enums.pickupDispatchtask.PickupDispatchTaskType;
 import com.sl.ms.work.entity.PickupDispatchTaskEntity;
 import com.sl.transport.common.util.PageResponse;
@@ -61,8 +62,9 @@ public interface PickupDispatchTaskService extends IService<PickupDispatchTaskEn
     List<CourierTaskCountDTO> findCountByCourierIds(List<Long> courierIds, PickupDispatchTaskType pickupDispatchTaskType, String date);
 
     /**
-     * 查询快递员当日的单据
+     * 查询快递员当日任务
      *
+     * @param courierId 快递员id
      * @return 任务列表
      */
     List<PickupDispatchTaskDTO> findTodayTaskByCourierId(Long courierId);
@@ -74,7 +76,7 @@ public interface PickupDispatchTaskService extends IService<PickupDispatchTaskEn
      * @param taskType 任务类型
      * @return 任务
      */
-    PickupDispatchTaskEntity findByOrderId(Long orderId, PickupDispatchTaskType taskType);
+    List<PickupDispatchTaskEntity> findByOrderId(Long orderId, PickupDispatchTaskType taskType);
 
     /**
      * 根据id批量删除取派件任务信息（逻辑删除）
@@ -83,4 +85,15 @@ public interface PickupDispatchTaskService extends IService<PickupDispatchTaskEn
      * @return 是否成功
      */
     boolean deleteByIds(List<Long> ids);
+
+    /**
+     * 今日任务分类计数
+     *
+     * @param courierId 快递员id
+     * @param taskType  任务类型，1为取件任务，2为派件任务
+     * @param status    任务状态,1新任务，2已完成，3已取消
+     * @param isDeleted 是否逻辑删除
+     * @return 任务数量
+     */
+    Integer todayTasksCount(Long courierId, PickupDispatchTaskType taskType, PickupDispatchTaskStatus status, PickupDispatchTaskIsDeleted isDeleted);
 }

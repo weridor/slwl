@@ -5,6 +5,7 @@ import com.sl.ms.work.domain.dto.TaskTransportUpdateDTO;
 import com.sl.ms.work.domain.dto.TransportTaskDTO;
 import com.sl.ms.work.domain.dto.request.TransportTaskCompleteDTO;
 import com.sl.ms.work.domain.dto.request.TransportTaskDelayDeliveryDTO;
+import com.sl.ms.work.domain.dto.request.TransportTaskPageQueryDTO;
 import com.sl.ms.work.domain.dto.request.TransportTaskStartDTO;
 import com.sl.ms.work.domain.dto.response.TransportTaskMonthlyDistanceDTO;
 import com.sl.ms.work.domain.dto.response.TransportTaskStatusCountDTO;
@@ -30,23 +31,11 @@ public interface TransportTaskService extends IService<TransportTaskEntity> {
     Boolean updateStatus(Long id, TransportTaskStatus status);
 
     /**
-     * 新增运输任务
-     *
-     * @param taskTransport 运输任务信息
-     * @return 运输任务信息
-     */
-    TransportTaskEntity saveTaskTransport(TransportTaskEntity taskTransport);
-
-    /**
      * 获取运输任务分页数据
      *
-     * @param page     页码
-     * @param pageSize 页尺寸
-     * @param id       任务id
-     * @param status   运输任务状态
      * @return 运输任务分页数据
      */
-    PageResponse<TransportTaskDTO> findByPage(Integer page, Integer pageSize, Long id, TransportTaskStatus status);
+    PageResponse<TransportTaskDTO> findByPage(TransportTaskPageQueryDTO pageQueryDTO);
 
     /**
      * 获取运输任务列表
@@ -84,9 +73,9 @@ public interface TransportTaskService extends IService<TransportTaskEntity> {
     /**
      * 根据运单id 或 运输任务id 查询运输任务列表
      *
-     * @param transportOrderId
-     * @param transportTaskId
-     * @return
+     * @param transportOrderId 运单id
+     * @param transportTaskId  运输任务id
+     * @return 运输任务列表
      */
     List<TransportTaskDTO> findAllByOrderIdOrTaskId(String transportOrderId, Long transportTaskId);
 
@@ -136,4 +125,12 @@ public interface TransportTaskService extends IService<TransportTaskEntity> {
      * @return 运输任务id列表
      */
     List<Long> findByAgencyId(Long startAgencyId, Long endAgencyId);
+
+    /**
+     * 根据车辆ID统计
+     *
+     * @param truckId 车辆ID
+     * @return 个数
+     */
+    Long countByTruckId(Long truckId);
 }

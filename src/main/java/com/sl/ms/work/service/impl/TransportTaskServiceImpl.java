@@ -21,11 +21,11 @@ import com.sl.ms.work.domain.dto.TaskTransportUpdateDTO;
 import com.sl.ms.work.domain.dto.TransportTaskDTO;
 import com.sl.ms.work.domain.dto.request.TransportTaskCompleteDTO;
 import com.sl.ms.work.domain.dto.request.TransportTaskDelayDeliveryDTO;
+import com.sl.ms.work.domain.dto.request.TransportTaskPageQueryDTO;
 import com.sl.ms.work.domain.dto.request.TransportTaskStartDTO;
 import com.sl.ms.work.domain.dto.response.TransportTaskMonthlyDistanceDTO;
 import com.sl.ms.work.domain.dto.response.TransportTaskStatusCountDTO;
 import com.sl.ms.work.domain.enums.WorkExceptionEnum;
-import com.sl.ms.work.domain.enums.transporttask.TransportTaskAssignedStatus;
 import com.sl.ms.work.domain.enums.transporttask.TransportTaskStatus;
 import com.sl.ms.work.entity.TransportOrderTaskEntity;
 import com.sl.ms.work.entity.TransportTaskEntity;
@@ -108,25 +108,20 @@ public class TransportTaskServiceImpl extends
     }
 
     @Override
-    @Transactional
-    public TransportTaskEntity saveTaskTransport(TransportTaskEntity taskTransport) {
-        taskTransport.setStatus(TransportTaskStatus.PENDING);
-        if (ObjectUtil.isEmpty(taskTransport.getStatus())) {
-            taskTransport.setAssignedStatus(TransportTaskAssignedStatus.TO_BE_DISTRIBUTED);
-        }
-        super.save(taskTransport);
-        return taskTransport;
-    }
-
-    @Override
-    public PageResponse<TransportTaskDTO> findByPage(Integer page, Integer pageSize, Long id, TransportTaskStatus status) {
-        Page<TransportTaskEntity> pageQuery = new Page<>(page, pageSize);
+    public PageResponse<TransportTaskDTO> findByPage(TransportTaskPageQueryDTO pageQueryDTO) {
+        Page<TransportTaskEntity> pageQuery = new Page<>(pageQueryDTO.getPage(), pageQueryDTO.getPageSize());
 
         //查询运输任务
         LambdaQueryWrapper<TransportTaskEntity> lambdaQueryWrapper = Wrappers.<TransportTaskEntity>lambdaQuery()
-                .eq(ObjectUtil.isNotEmpty(id), TransportTaskEntity::getId, id)
-                .eq(ObjectUtil.isNotEmpty(status), TransportTaskEntity::getStatus, status)
-                .orderByDesc(TransportTaskEntity::getCreated);
+                .like(ObjectUtil.isNotEmpty(pageQueryDTO.getId()), TransportTaskEntity::getId, pageQueryDTO.getId())
+                .eq(ObjectUtil.isNotEmpty(pageQueryDTO.getStatus()), TransportTaskEntity::getStatus, pageQueryDTO.getStatus())
+                .eq(ObjectUtil.isNotEmpty(pageQueryDTO.getAssignedStatus()), TransportTaskEntity::getAssignedStatus, pageQueryDTO.getAssignedStatus())
+                .eq(ObjectUtil.isNotEmpty(pageQueryDTO.getLoadingStatus()), TransportTaskEntity::getLoadingStatus, pageQueryDTO.getLoadingStatus())
+                .eq(ObjectUtil.isNotEmpty(pageQueryDTO.getStartAgencyId()), TransportTaskEntity::getStartAgencyId, pageQueryDTO.getStartAgencyId())
+                .eq(ObjectUtil.isNotEmpty(pageQueryDTO.getEndAgencyId()), TransportTaskEntity::getEndAgencyId, pageQueryDTO.getEndAgencyId())
+                .in(ObjectUtil.isNotEmpty(pageQueryDTO.getTruckIds()), TransportTaskEntity::getTruckId, pageQueryDTO.getTruckIds())
+                .eq(ObjectUtil.isNotEmpty(pageQueryDTO.getTruckId()), TransportTaskEntity::getTruckId, pageQueryDTO.getTruckId())
+                .orderByDesc(TransportTaskEntity::getPlanDepartureTime);
 
         Page<TransportTaskEntity> pageResult = super.page(pageQuery, lambdaQueryWrapper);
         if (CollUtil.isEmpty(pageResult.getRecords())) {
@@ -255,11 +250,6 @@ public class TransportTaskServiceImpl extends
         transportTaskDTO.setTransportOrderIds(transportOrderIdList);
         transportTaskDTO.setTransportOrderCount(CollUtil.size(transportOrderIdList));
 
-        //查询运输任务对应的司机作业单列表，最多拉取10个作业单（一般最多4个，不会这么多的）
-        DriverJobPageQueryDTO driverJobPageQueryDTO = DriverJobPageQueryDTO.builder().page(1).pageSize(10).transportTaskId(id).build();
-        PageResponse<DriverJobDTO> driverJobPage = driverJobFeign.pageQuery(driverJobPageQueryDTO);
-        List<Long> driverIds = CollUtil.getFieldValues(driverJobPage.getItems(), "driverId", Long.class);
-        transportTaskDTO.setDriverIds(driverIds);
         return transportTaskDTO;
     }
 
@@ -364,5 +354,19 @@ public class TransportTaskServiceImpl extends
 
         //3.从运输任务中抽取id
         return transportTaskEntityList.stream().map(TransportTaskEntity::getId).collect(Collectors.toList());
+    }
+
+    /**
+     * 根据车辆ID和状态统计
+     *
+     * @param truckId 车辆ID
+     * @return 个数
+     */
+    @Override
+    public Long countByTruckId(Long truckId) {
+        return count(Wrappers.<TransportTaskEntity>lambdaQuery()
+                .in(TransportTaskEntity::getStatus, TransportTaskStatus.PENDING.getCode(), TransportTaskStatus.PROCESSING.getCode())
+                .eq(TransportTaskEntity::getTruckId, truckId)
+        );
     }
 }
