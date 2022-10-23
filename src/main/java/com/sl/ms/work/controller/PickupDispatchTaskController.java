@@ -5,6 +5,8 @@ import com.sl.ms.work.domain.dto.CourierTaskCountDTO;
 import com.sl.ms.work.domain.dto.PickupDispatchTaskDTO;
 import com.sl.ms.work.domain.dto.request.PickupDispatchTaskPageQueryDTO;
 import com.sl.ms.work.domain.enums.WorkExceptionEnum;
+import com.sl.ms.work.domain.enums.pickupDispatchtask.PickupDispatchTaskIsDeleted;
+import com.sl.ms.work.domain.enums.pickupDispatchtask.PickupDispatchTaskStatus;
 import com.sl.ms.work.domain.enums.pickupDispatchtask.PickupDispatchTaskType;
 import com.sl.ms.work.entity.PickupDispatchTaskEntity;
 import com.sl.ms.work.service.PickupDispatchTaskService;
@@ -96,13 +98,10 @@ public class PickupDispatchTaskController {
             @ApiImplicitParam(name = "orderId", value = "订单id"),
             @ApiImplicitParam(name = "taskType", value = "任务类型")
     })
-    public PickupDispatchTaskDTO findByOrderId(@PathVariable("orderId") Long orderId,
-                                               @PathVariable("taskType") PickupDispatchTaskType taskType) {
-        PickupDispatchTaskEntity pickupDispatchTask = this.pickupDispatchTaskService.findByOrderId(orderId, taskType);
-        if (ObjectUtil.isEmpty(pickupDispatchTask)) {
-            throw new SLException(WorkExceptionEnum.PICKUP_DISPATCH_TASK_NOT_FOUND);
-        }
-        return BeanUtil.toBean(pickupDispatchTask, PickupDispatchTaskDTO.class);
+    public List<PickupDispatchTaskDTO> findByOrderId(@PathVariable("orderId") Long orderId,
+                                                     @PathVariable("taskType") PickupDispatchTaskType taskType) {
+        List<PickupDispatchTaskEntity> entities = pickupDispatchTaskService.findByOrderId(orderId, taskType);
+        return BeanUtil.copyToList(entities, PickupDispatchTaskDTO.class);
     }
 
     @GetMapping("count")
@@ -119,11 +118,26 @@ public class PickupDispatchTaskController {
     }
 
     @GetMapping("todayTasks/{courierId}")
-    @ApiOperation(value = "当日数量查询", notes = "查询快递员当日的单据")
+    @ApiOperation(value = "查询当日任务", notes = "查询快递员当日任务")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "courierId", value = "快递员id", required = true)
     })
     public List<PickupDispatchTaskDTO> findTodayTasks(@PathVariable("courierId") Long courierId) {
         return pickupDispatchTaskService.findTodayTaskByCourierId(courierId);
+    }
+
+    @GetMapping("todayTasks/count")
+    @ApiOperation(value = "今日任务分类计数")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "courierId", value = "快递员id", required = true, dataTypeClass = Long.class),
+            @ApiImplicitParam(name = "taskType", value = "任务类型，1为取件任务，2为派件任务", dataTypeClass = PickupDispatchTaskType.class),
+            @ApiImplicitParam(name = "status", value = "任务状态,1新任务，2已完成，3已取消", dataTypeClass = PickupDispatchTaskStatus.class),
+            @ApiImplicitParam(name = "isDeleted", value = "是否逻辑删除", dataTypeClass = PickupDispatchTaskIsDeleted.class)
+    })
+    public Integer todayTasksCount(@RequestParam(value = "courierId") Long courierId,
+                                   @RequestParam(value = "taskType", required = false) PickupDispatchTaskType taskType,
+                                   @RequestParam(value = "status", required = false) PickupDispatchTaskStatus status,
+                                   @RequestParam(value = "isDeleted", required = false) PickupDispatchTaskIsDeleted isDeleted) {
+        return pickupDispatchTaskService.todayTasksCount(courierId, taskType, status, isDeleted);
     }
 }
