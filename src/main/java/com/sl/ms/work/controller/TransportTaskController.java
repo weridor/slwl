@@ -4,6 +4,7 @@ import com.sl.ms.work.domain.dto.TaskTransportUpdateDTO;
 import com.sl.ms.work.domain.dto.TransportTaskDTO;
 import com.sl.ms.work.domain.dto.request.TransportTaskCompleteDTO;
 import com.sl.ms.work.domain.dto.request.TransportTaskDelayDeliveryDTO;
+import com.sl.ms.work.domain.dto.request.TransportTaskPageQueryDTO;
 import com.sl.ms.work.domain.dto.request.TransportTaskStartDTO;
 import com.sl.ms.work.domain.dto.response.TransportTaskMonthlyDistanceDTO;
 import com.sl.ms.work.domain.dto.response.TransportTaskStatusCountDTO;
@@ -43,19 +44,14 @@ public class TransportTaskController {
         return this.transportTaskService.updateStatus(id, status);
     }
 
-    @GetMapping("page")
-    @ApiOperation(value = "分页查询", notes = "获取运输任务分页数据")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "page", value = "页码", required = true),
-            @ApiImplicitParam(name = "pageSize", value = "页尺寸", required = true),
-            @ApiImplicitParam(name = "id", value = "运输任务id"),
-            @ApiImplicitParam(name = "status", value = "运输任务状态")
-    })
-    public PageResponse<TransportTaskDTO> findByPage(@RequestParam(value = "page", defaultValue = "1") Integer page,
-                                                     @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
-                                                     @RequestParam(value = "id", required = false) Long id,
-                                                     @RequestParam(value = "status", required = false) TransportTaskStatus status) {
-        return this.transportTaskService.findByPage(page, pageSize, id, status);
+    /**
+     * 获取运输任务分页数据
+     *
+     * @return 运输任务分页数据
+     */
+    @PostMapping("page")
+    PageResponse<TransportTaskDTO> findByPage(@RequestBody TransportTaskPageQueryDTO pageQueryDTO) {
+        return this.transportTaskService.findByPage(pageQueryDTO);
     }
 
     @GetMapping("{id}")

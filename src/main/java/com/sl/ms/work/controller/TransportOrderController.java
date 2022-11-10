@@ -7,6 +7,7 @@ import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sl.ms.work.domain.dto.TransportOrderDTO;
+import com.sl.ms.work.domain.dto.request.TransportOrderQueryDTO;
 import com.sl.ms.work.domain.dto.response.OrderToTransportOrderDTO;
 import com.sl.ms.work.domain.dto.response.TransportOrderStatusCountDTO;
 import com.sl.ms.work.domain.enums.WorkExceptionEnum;
@@ -59,23 +60,10 @@ public class TransportOrderController {
         return this.transportOrderService.updateStatus(Arrays.asList(id), status);
     }
 
-    @GetMapping("page")
+    @PostMapping("page")
     @ApiOperation(value = "分页查询", notes = "获取运单分页数据")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "page", value = "页码", required = true),
-            @ApiImplicitParam(name = "pageSize", value = "页尺寸", required = true),
-            @ApiImplicitParam(name = "id", value = "运单号"),
-            @ApiImplicitParam(name = "orderId", value = "订单id"),
-            @ApiImplicitParam(name = "status", value = "运单状态"),
-            @ApiImplicitParam(name = "schedulingStatus", value = "调度状态调度状态"),
-    })
-    public PageResponse<TransportOrderDTO> findByPage(@RequestParam(name = "page", defaultValue = "1") Integer page,
-                                                      @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
-                                                      @RequestParam(name = "id", required = false) String id,
-                                                      @RequestParam(name = "orderId", required = false) Long orderId,
-                                                      @RequestParam(name = "status", required = false) TransportOrderStatus status,
-                                                      @RequestParam(name = "schedulingStatus", required = false) TransportOrderSchedulingStatus schedulingStatus) {
-        Page<TransportOrderEntity> pageResult = this.transportOrderService.findByPage(page, pageSize, id, orderId, status, schedulingStatus);
+    public PageResponse<TransportOrderDTO> findByPage(@RequestBody TransportOrderQueryDTO transportOrderQueryDTO) {
+        Page<TransportOrderEntity> pageResult = this.transportOrderService.findByPage(transportOrderQueryDTO);
         return new PageResponse<>(pageResult, TransportOrderDTO.class);
     }
 
