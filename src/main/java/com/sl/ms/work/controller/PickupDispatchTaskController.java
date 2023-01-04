@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.sl.ms.work.domain.dto.CourierTaskCountDTO;
 import com.sl.ms.work.domain.dto.PickupDispatchTaskDTO;
 import com.sl.ms.work.domain.dto.request.PickupDispatchTaskPageQueryDTO;
+import com.sl.ms.work.domain.dto.response.PickupDispatchTaskStatisticsDTO;
 import com.sl.ms.work.domain.enums.WorkExceptionEnum;
 import com.sl.ms.work.domain.enums.pickupDispatchtask.PickupDispatchTaskIsDeleted;
 import com.sl.ms.work.domain.enums.pickupDispatchtask.PickupDispatchTaskStatus;
@@ -17,7 +18,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -26,7 +26,6 @@ import java.util.List;
 /**
  * 取件、派件任务信息表 前端控制器
  */
-@Slf4j
 @RestController
 @Api(tags = "取派件任务")
 @RequestMapping("pickup-dispatch-task")
@@ -42,16 +41,16 @@ public class PickupDispatchTaskController {
     }
 
     @PutMapping("courier")
-    @ApiOperation(value = "改派快递员", notes = "改派快递员")
+    @ApiOperation(value = "批量改派快递员", notes = "批量改派快递员")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "任务id", required = true),
+            @ApiImplicitParam(name = "ids", value = "任务id列表", required = true),
             @ApiImplicitParam(name = "originalCourierId", value = "原快递员id", required = true),
             @ApiImplicitParam(name = "targetCourierId", value = "目标快递员id", required = true),
     })
-    public Boolean updateCourierId(@RequestParam("id") Long id,
+    public Boolean updateCourierId(@RequestParam("ids") List<Long> ids,
                                    @RequestParam("originalCourierId") Long originalCourierId,
                                    @RequestParam("targetCourierId") Long targetCourierId) {
-        return this.pickupDispatchTaskService.updateCourierId(id, originalCourierId, targetCourierId);
+        return this.pickupDispatchTaskService.updateCourierId(ids, originalCourierId, targetCourierId);
     }
 
     @PostMapping("page")
@@ -117,15 +116,6 @@ public class PickupDispatchTaskController {
         return this.pickupDispatchTaskService.findCountByCourierIds(courierIds, taskType, date);
     }
 
-    @GetMapping("todayTasks/{courierId}")
-    @ApiOperation(value = "查询当日任务", notes = "查询快递员当日任务")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "courierId", value = "快递员id", required = true)
-    })
-    public List<PickupDispatchTaskDTO> findTodayTasks(@PathVariable("courierId") Long courierId) {
-        return pickupDispatchTaskService.findTodayTaskByCourierId(courierId);
-    }
-
     @GetMapping("todayTasks/count")
     @ApiOperation(value = "今日任务分类计数")
     @ApiImplicitParams({
@@ -134,10 +124,34 @@ public class PickupDispatchTaskController {
             @ApiImplicitParam(name = "status", value = "任务状态,1新任务，2已完成，3已取消", dataTypeClass = PickupDispatchTaskStatus.class),
             @ApiImplicitParam(name = "isDeleted", value = "是否逻辑删除", dataTypeClass = PickupDispatchTaskIsDeleted.class)
     })
-    public Integer todayTasksCount(@RequestParam(value = "courierId") Long courierId,
+    public Integer todayTasksCount(@RequestParam("courierId") Long courierId,
                                    @RequestParam(value = "taskType", required = false) PickupDispatchTaskType taskType,
                                    @RequestParam(value = "status", required = false) PickupDispatchTaskStatus status,
                                    @RequestParam(value = "isDeleted", required = false) PickupDispatchTaskIsDeleted isDeleted) {
         return pickupDispatchTaskService.todayTasksCount(courierId, taskType, status, isDeleted);
+    }
+
+    @GetMapping("/all")
+    @ApiOperation(value = "条件查询所有")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "courierId", value = "快递员id", dataTypeClass = Long.class),
+            @ApiImplicitParam(name = "taskType", value = "任务类型，1为取件任务，2为派件任务", dataTypeClass = PickupDispatchTaskType.class),
+            @ApiImplicitParam(name = "taskStatus", value = "任务状态,1新任务，2已完成，3已取消", dataTypeClass = PickupDispatchTaskStatus.class),
+            @ApiImplicitParam(name = "isDeleted", value = "是否逻辑删除", dataTypeClass = PickupDispatchTaskIsDeleted.class)
+    })
+    public List<PickupDispatchTaskDTO> findAll(@RequestParam(name = "courierId", required = false) Long courierId,
+                                               @RequestParam(name = "taskType", required = false) PickupDispatchTaskType taskType,
+                                               @RequestParam(name = "taskStatus", required = false) PickupDispatchTaskStatus taskStatus,
+                                               @RequestParam(name = "isDeleted", required = false) PickupDispatchTaskIsDeleted isDeleted) {
+        return pickupDispatchTaskService.findAll(courierId, taskType, taskStatus, isDeleted);
+    }
+
+    @GetMapping("/todayTasksStatistics")
+    @ApiOperation(value = "今日任务分类统计")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "courierId", value = "快递员id", dataTypeClass = Long.class)
+    })
+    public PickupDispatchTaskStatisticsDTO todayTasksStatistics(@RequestParam(value = "courierId", required = false) Long courierId) {
+        return pickupDispatchTaskService.todayTaskStatistics(courierId);
     }
 }

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.sl.ms.work.domain.dto.CourierTaskCountDTO;
 import com.sl.ms.work.domain.dto.PickupDispatchTaskDTO;
 import com.sl.ms.work.domain.dto.request.PickupDispatchTaskPageQueryDTO;
+import com.sl.ms.work.domain.dto.response.PickupDispatchTaskStatisticsDTO;
 import com.sl.ms.work.domain.enums.pickupDispatchtask.PickupDispatchTaskIsDeleted;
 import com.sl.ms.work.domain.enums.pickupDispatchtask.PickupDispatchTaskStatus;
 import com.sl.ms.work.domain.enums.pickupDispatchtask.PickupDispatchTaskType;
@@ -28,12 +29,12 @@ public interface PickupDispatchTaskService extends IService<PickupDispatchTaskEn
     /**
      * 改派快递员
      *
-     * @param id                任务id
+     * @param ids               任务id列表
      * @param originalCourierId 原快递员id
      * @param targetCourierId   目标快递员id
      * @return 是否成功
      */
-    Boolean updateCourierId(Long id, Long originalCourierId, Long targetCourierId);
+    Boolean updateCourierId(List<Long> ids, Long originalCourierId, Long targetCourierId);
 
     /**
      * 新增取派件任务
@@ -62,14 +63,6 @@ public interface PickupDispatchTaskService extends IService<PickupDispatchTaskEn
     List<CourierTaskCountDTO> findCountByCourierIds(List<Long> courierIds, PickupDispatchTaskType pickupDispatchTaskType, String date);
 
     /**
-     * 查询快递员当日任务
-     *
-     * @param courierId 快递员id
-     * @return 任务列表
-     */
-    List<PickupDispatchTaskDTO> findTodayTaskByCourierId(Long courierId);
-
-    /**
      * 根据订单id查询取派件任务
      *
      * @param orderId  订单id
@@ -96,4 +89,23 @@ public interface PickupDispatchTaskService extends IService<PickupDispatchTaskEn
      * @return 任务数量
      */
     Integer todayTasksCount(Long courierId, PickupDispatchTaskType taskType, PickupDispatchTaskStatus status, PickupDispatchTaskIsDeleted isDeleted);
+
+    /**
+     * 条件查询所有
+     *
+     * @param courierId  快递员id
+     * @param taskType   任务类型，1为取件任务，2为派件任务
+     * @param taskStatus 任务状态,1新任务，2已完成，3已取消
+     * @param isDeleted  是否逻辑删除
+     * @return 取派件任务列表
+     */
+    List<PickupDispatchTaskDTO> findAll(Long courierId, PickupDispatchTaskType taskType, PickupDispatchTaskStatus taskStatus, PickupDispatchTaskIsDeleted isDeleted);
+
+    /**
+     * 今日任务分类统计
+     *
+     * @param courierId 快递员id
+     * @return 统计结果
+     */
+    PickupDispatchTaskStatisticsDTO todayTaskStatistics(Long courierId);
 }
