@@ -282,7 +282,7 @@ public class TransportTaskServiceImpl extends
     @Override
     public void adjust(TaskTransportUpdateDTO dto) {
         if (ObjectUtil.hasEmpty(dto, dto.getId())
-                || ObjectUtil.isAllEmpty(dto.getTransportTripsId(), dto.getTruckId(), dto.getDriverId())) {
+                || ObjectUtil.isAllEmpty(dto.getTransportTripsId(), dto.getTruckId(), dto.getDriverIds())) {
             throw new SLException(WorkExceptionEnum.TRANSPORT_TASK_UPDATE_PARAM_ERROR);
         }
 
@@ -294,7 +294,7 @@ public class TransportTaskServiceImpl extends
         this.driverJobFeign.removeByTransportTaskId(dto.getId());
 
         // 创建新的司机作业单
-        dto.getDriverId().forEach(driverId -> this.driverJobFeign.createDriverJob(dto.getId(), driverId));
+        dto.getDriverIds().forEach(driverId -> this.driverJobFeign.createDriverJob(dto.getId(), driverId));
     }
 
     /**
