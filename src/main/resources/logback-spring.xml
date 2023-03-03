@@ -23,8 +23,7 @@
         </filter>
         <File>${logback.logdir}/${logback.appname}/${logback.appname}.log</File>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>${logback.logdir}/${logback.appname}/${logback.appname}.%d{yyyy-MM-dd}.log.zip
-            </FileNamePattern>
+            <FileNamePattern>${logback.logdir}/${logback.appname}/${logback.appname}.%d{yyyy-MM-dd}.log.zip</FileNamePattern>
             <maxHistory>90</maxHistory>
         </rollingPolicy>
         <encoder>
@@ -35,7 +34,7 @@
 
     <appender name="GELF" class="biz.paluch.logging.gelf.logback.GelfLogbackAppender">
         <!--GrayLog服务地址-->
-        <host>udp:172.17.2.133</host>
+        <host>udp:192.168.150.101</host>
         <!--GrayLog服务端口-->
         <port>12201</port>
         <version>1.1</version>
